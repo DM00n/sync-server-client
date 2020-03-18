@@ -18,7 +18,6 @@ HunterGate(
   SHA1 "9a3594a61227967fb92159339ba326701b287b19"
 )
 
-
 # TODO: rename project and delete this comment
 project(template)
 string(APPEND CMAKE_CXX_FLAGS " -pedantic -Werror -Wall -Wextra")
@@ -27,7 +26,13 @@ string(APPEND CMAKE_CXX_FLAGS " -Wshadow -Wnon-virtual-dtor")
 
 hunter_add_package(GTest)
 find_package(GTest CONFIG REQUIRED)
+hunter_add_package(Boost COMPONENTS log thread)
+find_package(Boost CONFIG REQUIRED log thread)
 
+add_library(logs INTERFACE
+        )
+add_library(header INTERFACE
+        )
 # TODO: change template word to project name and delete this comment
 add_library(template STATIC
   # enum your files and delete this comment
@@ -47,7 +52,18 @@ target_include_directories(tests
 )
 # TODO: change template word to project name and delete this comment
 target_link_libraries(tests GTest::main template)
+target_include_directories(
+        header
+        INTERFACE $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
+target_include_directories(
+        logs
+        INTERFACE $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_link_libraries(template Boost::log)
+target_link_libraries(logs INTERFACE Boost::log Boost::thread)
+target_link_libraries(header INTERFACE Boost::log Boost::thread)
 enable_testing()
 add_test(NAME unit_tests COMMAND tests) 
 
