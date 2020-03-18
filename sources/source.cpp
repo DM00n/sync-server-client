@@ -90,9 +90,8 @@ void My_server::req_analysis(std::shared_ptr<My_client> &b) {
     if (msg.find("login ") == 0) login_ok(msg, b);
     else if (msg == "ping") ping_ok(b);
     else if (msg == "ask_clients") on_clients(b);
-    else {
+    else
         b->get_sock().write_some(boost::asio::buffer("bad message\n"));
-    }
 }
 
 void My_server::login_ok(const std::string &msg,
@@ -106,7 +105,7 @@ void My_server::login_ok(const std::string &msg,
     for (auto it = _client_list.begin(); it != _client_list.end();){
         if ((*it)->get_uname() == n_n){
             b->get_sock().write_some(boost::asio::
-                                     buffer("client with the same name already exists\n"));
+            buffer("client with the same name already exists\n"));
         }
         it++;
     }
