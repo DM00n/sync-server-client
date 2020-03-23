@@ -1,7 +1,7 @@
 // Copyright 2018 Your Name <your_email>
-#include "header.hpp"
+#include "header.h"
 
-My_server::My_server():sym_read(0){
+My_server::My_server() : sym_read(0) {
     _context = new Service;
 }
 
@@ -13,8 +13,8 @@ void My_server::starter() {
     t2.join();
 }
 
-void My_server::listen_thread(){
-    while (true){
+void My_server::listen_thread() {
+    while (true) {
         Acceptor acc(*_context, ep);
         My_client cli(_context);
         acc.accept(cli.get_sock());
@@ -24,38 +24,36 @@ void My_server::listen_thread(){
         _client_list.emplace_back(std::make_shared<My_client>
                                           (std::move(cli)));
         cs.unlock();
-        BOOST_LOG_TRIVIAL(info) << "NEW CLIENT CONNECTED" << std::endl;
+        BOOST_LOG_TRIVIAL(info) << "NEW CLIENT CONNECTED";
     }
 }
 
 void My_server::worker_thread() {
-    while (true){
+    while (true) {
         if (_client_list.empty()) continue;
         cs.lock();
         for (auto it = _client_list.begin(); it != _client_list.end();) {
-            try
-            {
+            try {
                 (*it)->get_sock().non_blocking(true);
                 if (timed_out(*it)) throw "c";
                 if (!((*it)->get_sock().is_open())) throw 101;
                 reader(*it);
                 req_analysis(*it);
             }
-            catch (std::exception &e)
-            {
+            catch (std::exception &e) {
                 if (strcmp(e.what(),
-                          "read_some: Resource temporarily unavailable")){
-                    //std::cerr << e.what();
+                           "read_some: Resource temporarily unavailable")) {
                     stoper(*it);
+                    BOOST_LOG_TRIVIAL(info) << (*it)->get_uname() << " DISCONNECTED";
                     _client_list.erase(it);
                     continue;
                 }
             }
-            catch (char const*){
+            catch (char const *) {
                 (*it)->get_sock().write_some(boost::asio::
                                              buffer("timed_out\n"));
-                //std::cerr<<"end";
                 stoper(*it);
+                BOOST_LOG_TRIVIAL(info) << (*it)->get_uname() << " DISCONNECTED";
                 _client_list.erase(it);
                 continue;
             }
@@ -77,7 +75,7 @@ void My_server::reader(std::shared_ptr<My_client> &b) {
 
 void My_server::req_analysis(std::shared_ptr<My_client> &b) {
     std::string buffer(_buff, sym_read);
-    if (sym_read >= MAX_SYM){
+    if (sym_read >= MAX_SYM) {
         b->get_sock().write_some(boost::asio::
                                  buffer("message is too long\n"));
         return;
@@ -90,26 +88,28 @@ void My_server::req_analysis(std::shared_ptr<My_client> &b) {
     if (msg.find("login ") == 0) login_ok(msg, b);
     else if (msg == "ping") ping_ok(b);
     else if (msg == "ask_clients") on_clients(b);
-    else
-        b->get_sock().write_some(boost::asio::buffer("bad message\n"));
+    else b->get_sock().write_some(boost::asio::buffer("bad message\n"));
+    memset(_buff, 0, MAX_SYM);
+    sym_read = 0;
 }
 
-void My_server::login_ok(const std::string &msg,
-        std::shared_ptr<My_client> &b) {
-    if (!(b->get_uname().empty())) {
+void My_server::login_ok(const std::string &msg, std::shared_ptr<My_client> &b) {
+    if ((strcmp(b->get_uname().c_str(), NO_NAME))) {
         b->get_sock().write_some(boost::asio::
                                  buffer("you are already logged\n"));
         return;
     }
     std::string n_n(msg, 6);
-    for (auto it = _client_list.begin(); it != _client_list.end();){
-        if ((*it)->get_uname() == n_n){
+    for (auto it = _client_list.begin(); it != _client_list.end();) {
+        if ((*it)->get_uname() == n_n) {
             b->get_sock().write_some(boost::asio::
-            buffer("client with the same name already exists\n"));
+                                     buffer("client with the same name already exists\n"));
+            return;
         }
         it++;
     }
     b->set_uname(n_n);
+    BOOST_LOG_TRIVIAL(info) << "LOGGED " << n_n;
     b->get_sock().write_some(boost::asio::buffer("login ok\n"));
     clients_changed_ = true;
 }
@@ -118,7 +118,7 @@ void My_server::ping_ok(std::shared_ptr<My_client> &b) {
     if (clients_changed_) {
         b->get_sock().write_some(boost::asio::
                                  buffer("ping client_list_changed\n"));
-    }else{
+    } else {
         b->get_sock().write_some(boost::asio::buffer("ping ok\n"));
     }
     clients_changed_ = false;
@@ -126,7 +126,7 @@ void My_server::ping_ok(std::shared_ptr<My_client> &b) {
 
 void My_server::on_clients(std::shared_ptr<My_client> &b) {
     std::string msg;
-    for (auto it = _client_list.begin(); it != _client_list.end();){
+    for (auto it = _client_list.begin(); it != _client_list.end();) {
         msg += (*it)->get_uname() + " ";
         it++;
     }
@@ -139,31 +139,17 @@ void My_server::stoper(std::shared_ptr<My_client> &b) {
 }
 
 void My_server::logger() {
+    logging::add_console_log
+            (
+                    std::cout,
+                    logging::keywords::format =
+                            "[%TimeStamp%]: %Message%");
     logging::add_common_attributes();
-    logging::add_file_log(
-            logging::keywords::file_name = LOG_NAME_TRACE,
-            logging::keywords::rotation_size = LOG_SIZE,
-            logging::keywords::time_based_rotation =
-                    logging::sinks::file::rotation_at_time_point(0, 0, 0),
-            logging::keywords::filter = logging::trivial::severity
-                                        >= logging::trivial::trace,
-            logging::keywords::format =
-                    "[%TimeStamp%]: %Message%");
-
-    logging::add_file_log(
-            logging::keywords::file_name = LOG_NAME_INFO,
-            logging::keywords::rotation_size = LOG_SIZE,
-            logging::keywords::time_based_rotation =
-                    logging::sinks::file::rotation_at_time_point(0, 0, 0),
-            logging::keywords::filter = logging::trivial::severity
-                                        >= logging::trivial::info,
-            logging::keywords::format =
-                    "[%TimeStamp%]: %Message%");
 }
 
 //------------------------------------------------------------------------
 
-My_client::My_client(Context *io):last_ping(0), sock_(*io){}
+My_client::My_client(Context *io) : sock_(*io), last_ping(0), _username(NO_NAME) {}
 
 void My_client::start_work() {
     try {
@@ -171,7 +157,7 @@ void My_client::start_work() {
         working = true;
         cycle();
     }
-    catch(boost::system::system_error & err) {
+    catch (boost::system::system_error &err) {
         working = false;
         std::cout << "client terminated" << std::endl;
     }
@@ -200,18 +186,22 @@ void My_client::set_uname(std::string new_name) {
 std::string My_client::get_uname() {
     return _username;
 }
+
 void My_client::reader() {
     sym_read = sock_.read_some(boost::asio::buffer(_buff));
     ans_analysis();
 }
+
 void My_client::ans_analysis() {
     std::string msg(_buff, 0, sym_read);
     std::cout << msg;
     if (msg.find("ping ") == 0) ping_ok(msg);
     else if (msg.find("clients ") == 0) cli_list(msg);
-    else if (msg.find("timed_out") == 0) working = false;
+    else if (msg.find("timed_out") == 0) { working = false; }
+
 }
-void My_client::ping_ok(const std::string& msg) {
+
+void My_client::ping_ok(const std::string &msg) {
     std::string str(msg, 5);
     if (str == "client_list_changed\n") ask_list();
 }
@@ -221,6 +211,6 @@ void My_client::ask_list() {
     reader();
 }
 
-void My_client::cli_list(const std::string& msg) {
+void My_client::cli_list(const std::string &msg) {
     std::string str(msg, 8);
 }
