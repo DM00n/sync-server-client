@@ -35,6 +35,7 @@ const Endpoint ep(boost::asio::ip::address::from_string("127.0.0.1"), PORT_NUM);
 const unsigned LOG_SIZE = 10 * 1024 * 1024;
 const char LOG_NAME_TRACE[] = "../log/trace_%N.log";
 const char LOG_NAME_INFO[] = "../log/info_%N.log";
+const char NO_NAME[] = "NO_NAME";
 
 class My_client{
 public:
