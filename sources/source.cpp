@@ -44,7 +44,8 @@ void My_server::worker_thread() {
                 if (strcmp(e.what(),
                            "read_some: Resource temporarily unavailable")) {
                     stoper(*it);
-                    BOOST_LOG_TRIVIAL(info) << (*it)->get_uname() << " DISCONNECTED";
+                    BOOST_LOG_TRIVIAL(info) << (*it)->get_uname()
+                                            << " DISCONNECTED";
                     _client_list.erase(it);
                     continue;
                 }
@@ -53,7 +54,8 @@ void My_server::worker_thread() {
                 (*it)->get_sock().write_some(boost::asio::
                                              buffer("timed_out\n"));
                 stoper(*it);
-                BOOST_LOG_TRIVIAL(info) << (*it)->get_uname() << " DISCONNECTED";
+                BOOST_LOG_TRIVIAL(info) << (*it)->get_uname()
+                                        << " DISCONNECTED";
                 _client_list.erase(it);
                 continue;
             }
@@ -88,12 +90,14 @@ void My_server::req_analysis(std::shared_ptr<My_client> &b) {
     if (msg.find("login ") == 0) login_ok(msg, b);
     else if (msg == "ping") ping_ok(b);
     else if (msg == "ask_clients") on_clients(b);
-    else b->get_sock().write_some(boost::asio::buffer("bad message\n"));
+    else
+        b->get_sock().write_some(boost::asio::buffer("bad message\n"));
     memset(_buff, 0, MAX_SYM);
     sym_read = 0;
 }
 
-void My_server::login_ok(const std::string &msg, std::shared_ptr<My_client> &b) {
+void My_server::login_ok(const std::string &msg,
+                         std::shared_ptr<My_client> &b){
     if ((strcmp(b->get_uname().c_str(), NO_NAME))) {
         b->get_sock().write_some(boost::asio::
                                  buffer("you are already logged\n"));
@@ -103,7 +107,7 @@ void My_server::login_ok(const std::string &msg, std::shared_ptr<My_client> &b) 
     for (auto it = _client_list.begin(); it != _client_list.end();) {
         if ((*it)->get_uname() == n_n) {
             b->get_sock().write_some(boost::asio::
-                                     buffer("client with the same name already exists\n"));
+            buffer("client with the same name already exists\n"));
             return;
         }
         it++;
@@ -117,7 +121,7 @@ void My_server::login_ok(const std::string &msg, std::shared_ptr<My_client> &b) 
 void My_server::ping_ok(std::shared_ptr<My_client> &b) {
     if (clients_changed_) {
         b->get_sock().write_some(boost::asio::
-                                 buffer("ping client_list_changed\n"));
+        buffer("ping client_list_changed\n"));
     } else {
         b->get_sock().write_some(boost::asio::buffer("ping ok\n"));
     }
@@ -149,7 +153,8 @@ void My_server::logger() {
 
 //------------------------------------------------------------------------
 
-My_client::My_client(Context *io) : sock_(*io), last_ping(0), _username(NO_NAME) {}
+My_client::My_client(Context *io) : sock_(*io), last_ping(0),
+                                    _username(NO_NAME) {}
 
 void My_client::start_work() {
     try {
@@ -197,8 +202,7 @@ void My_client::ans_analysis() {
     std::cout << msg;
     if (msg.find("ping ") == 0) ping_ok(msg);
     else if (msg.find("clients ") == 0) cli_list(msg);
-    else if (msg.find("timed_out") == 0) { working = false; }
-
+    else if (msg.find("timed_out") == 0) working = false;
 }
 
 void My_client::ping_ok(const std::string &msg) {
