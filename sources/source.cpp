@@ -45,7 +45,7 @@ void Server::worker_thread() {
                            "read_some: Resource temporarily unavailable")) {
                     stoper(*it);
                     BOOST_LOG_TRIVIAL(info) << (*it)->get_uname()
-					    << " DISCONNECTED";
+                        << " DISCONNECTED";
                     _client_list.erase(it);
                     continue;
                 }
@@ -55,7 +55,7 @@ void Server::worker_thread() {
                                              buffer("timed_out\n"));
                 stoper(*it);
                 BOOST_LOG_TRIVIAL(info) << (*it)->get_uname()
-				    << " DISCONNECTED";
+                    << " DISCONNECTED";
                 _client_list.erase(it);
                 continue;
             }
@@ -91,7 +91,7 @@ void Server::req_analysis(std::shared_ptr<Client> &b) {
     else if (msg == "ping") ping_ok(b);
     else if (msg == "ask_clients") on_clients(b);
     else
-	    b->get_sock().write_some(boost::asio::buffer("bad message\n"));
+        b->get_sock().write_some(boost::asio::buffer("bad message\n"));
     memset(_buff, 0, MAX_SYM);
     sym_read = 0;
 }
@@ -106,7 +106,7 @@ void Server::login_ok(const std::string &msg, std::shared_ptr<Client> &b) {
     for (auto it = _client_list.begin(); it != _client_list.end();) {
         if ((*it)->get_uname() == n_n) {
             b->get_sock().write_some(boost::asio::
-			    buffer("client with the same name already exists\n"));
+                buffer("client with the same name already exists\n"));
             return;
         }
         it++;
@@ -151,7 +151,7 @@ void Server::logger() {
                     keywords::format = "[%TimeStamp%]: %Message%",
                     keywords::time_based_rotation =
                         boost::log::sinks::file::
-						    rotation_at_time_point(12, 0, 0));
+                            rotation_at_time_point(12, 0, 0));
 
     typedef boost::log::sinks::synchronous_sink
     < boost::log::sinks::text_file_backend > sink_t;
