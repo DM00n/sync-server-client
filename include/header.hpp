@@ -1,7 +1,7 @@
 // Copyright 2018 Your Name <your_email>
 
-#ifndef NEW_LIFE_HEADER_H
-#define NEW_LIFE_HEADER_H
+#ifndef INCLUDE_HEADER_HPP_
+#define INCLUDE_HEADER_HPP_
 
 #include <iostream>
 #include <boost/asio.hpp>
@@ -19,6 +19,8 @@
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/sinks.hpp>
+#include <vector>
+
 using Endpoint = boost::asio::ip::tcp::endpoint;
 using Acceptor = boost::asio::ip::tcp::acceptor;
 using Context = boost::asio::io_context;
@@ -27,9 +29,10 @@ using Socket = boost::asio::ip::tcp::socket;
 namespace logging = boost::log;
 namespace keywords = boost::log::keywords;
 
-const static unsigned PORT_NUM = 8001;
-const static unsigned MAX_SYM = 1024;
-const static Endpoint ep(boost::asio::ip::address::from_string("127.0.0.1"), PORT_NUM);
+const unsigned PORT_NUM = 8001;
+const unsigned MAX_SYM = 1024;
+const Endpoint ep(boost::asio::ip::address::
+	from_string("127.0.0.1"), PORT_NUM);
 const unsigned LOG_SIZE = 10 * 1024 * 1024;
 const char LOG_NAME_TRACE[] = "../log/trace_%N.log";
 const char LOG_NAME_INFO[] = "../log/info_%N.log";
@@ -37,7 +40,7 @@ const char NO_NAME[] = "NO_NAME";
 
 class Client{
 public:
-    Client(Context *io);
+    explicit Client(Context *io);
     void start_work();
     void cycle();
     void ping_ok(const std::string& msg);
@@ -83,4 +86,4 @@ private:
 };
 
 
-#endif //NEW_LIFE_HEADER_H
+#endif //INCLUDE_HEADER_HPP_

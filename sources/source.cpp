@@ -44,7 +44,8 @@ void Server::worker_thread() {
                 if (strcmp(e.what(),
                            "read_some: Resource temporarily unavailable")) {
                     stoper(*it);
-                    BOOST_LOG_TRIVIAL(info) << (*it)->get_uname() << " DISCONNECTED";
+                    BOOST_LOG_TRIVIAL(info) << (*it)->get_uname()
+						<< " DISCONNECTED";
                     _client_list.erase(it);
                     continue;
                 }
@@ -53,7 +54,8 @@ void Server::worker_thread() {
                 (*it)->get_sock().write_some(boost::asio::
                                              buffer("timed_out\n"));
                 stoper(*it);
-                BOOST_LOG_TRIVIAL(info) << (*it)->get_uname() << " DISCONNECTED";
+                BOOST_LOG_TRIVIAL(info) << (*it)->get_uname()
+					<< " DISCONNECTED";
                 _client_list.erase(it);
                 continue;
             }
@@ -88,7 +90,8 @@ void Server::req_analysis(std::shared_ptr<Client> &b) {
     if (msg.find("login ") == 0) login_ok(msg, b);
     else if (msg == "ping") ping_ok(b);
     else if (msg == "ask_clients") on_clients(b);
-    else b->get_sock().write_some(boost::asio::buffer("bad message\n"));
+    else 
+		b->get_sock().write_some(boost::asio::buffer("bad message\n"));
     memset(_buff, 0, MAX_SYM);
     sym_read = 0;
 }
@@ -103,7 +106,7 @@ void Server::login_ok(const std::string &msg, std::shared_ptr<Client> &b) {
     for (auto it = _client_list.begin(); it != _client_list.end();) {
         if ((*it)->get_uname() == n_n) {
             b->get_sock().write_some(boost::asio::
-                                     buffer("client with the same name already exists\n"));
+				buffer("client with the same name already exists\n"));
             return;
         }
         it++;
@@ -147,9 +150,11 @@ void Server::logger() {
                     keywords::rotation_size = 5 * 1024 * 1024,
                     keywords::format = "[%TimeStamp%]: %Message%",
                     keywords::time_based_rotation =
-                            boost::log::sinks::file::rotation_at_time_point(12, 0, 0));
+                        boost::log::sinks::file::
+							rotation_at_time_point(12, 0, 0));
 
-    typedef boost::log::sinks::synchronous_sink< boost::log::sinks::text_file_backend > sink_t;
+    typedef boost::log::sinks::synchronous_sink
+	< boost::log::sinks::text_file_backend > sink_t;
     boost::shared_ptr< sink_t > sink(new sink_t(backend));
 // sink ->set_filter(logging::trivial::severity >= logging::trivial::info);
     core->add_sink(sink);
@@ -184,7 +189,6 @@ void Client::cycle() {
         std::getline(std::cin, msg);
         sock_.write_some(boost::asio::buffer(msg + "\n"));
         reader();
-        //boost::this_thread::sleep(boost::posix_time::millisec(rand() % 7000));
     }
 }
 
@@ -210,8 +214,10 @@ void Client::ans_analysis() {
     std::cout << msg;
     if (msg.find("ping ") == 0) ping_ok(msg);
     else if (msg.find("clients ") == 0) cli_list(msg);
-    else if (msg.find("timed_out") == 0) { working = false; }
-
+    else if (msg.find("timed_out") == 0) 
+	{ 
+		working = false; 
+	}
 }
 
 void Client::ping_ok(const std::string &msg) {
