@@ -32,7 +32,7 @@ namespace keywords = boost::log::keywords;
 const unsigned PORT_NUM = 8001;
 const unsigned MAX_SYM = 1024;
 const Endpoint ep(boost::asio::ip::address::
-	from_string("127.0.0.1"), PORT_NUM);
+    from_string("127.0.0.1"), PORT_NUM);
 const unsigned LOG_SIZE = 10 * 1024 * 1024;
 const char LOG_NAME_TRACE[] = "../log/trace_%N.log";
 const char LOG_NAME_INFO[] = "../log/info_%N.log";
