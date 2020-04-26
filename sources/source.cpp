@@ -147,11 +147,10 @@ void Server::logger() {
             boost::make_shared< boost::log::sinks::text_file_backend >(
                     keywords::file_name = LOG_NAME_INFO,
                     keywords::rotation_size = 5 * 1024 * 1024,
-                    keywords::format = "%Message%"
+                    keywords::format = "%Message%");
 //                    keywords::time_based_rotation =
 //                        boost::log::sinks::file::
 //                            rotation_at_time_point(12, 0, 0)
-                            );
 
     typedef boost::log::sinks::synchronous_sink
     < boost::log::sinks::text_file_backend > sink_t;
