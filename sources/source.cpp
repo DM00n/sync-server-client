@@ -119,7 +119,7 @@ void Server::login_ok(const std::string &msg, std::shared_ptr<Client> &b) {
 void Server::ping_ok(std::shared_ptr<Client> &b) {
     if (clients_changed_) {
         b->get_sock().write_some(boost::asio::
-		                         buffer(MSG_PING_CLIENTS_CHANGED));
+                                 buffer(MSG_PING_CLIENTS_CHANGED));
     } else {
         b->get_sock().write_some(boost::asio::buffer(MSG_PING_OK));
     }
@@ -147,7 +147,7 @@ void Server::logger() {
             boost::make_shared< boost::log::sinks::text_file_backend >(
                     keywords::file_name = LOG_NAME_INFO,
                     keywords::rotation_size = 5 * 1024 * 1024,
-                    keywords::format = "%Message%",
+                    keywords::format = "%Message%"
 //                    keywords::time_based_rotation =
 //                        boost::log::sinks::file::
 //                            rotation_at_time_point(12, 0, 0)
