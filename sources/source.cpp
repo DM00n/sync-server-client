@@ -167,7 +167,7 @@ void Server::logger() {
 
 //------------------------------------------------------------------------
 
-Client::Client(Context *io) : sock_(*io), last_ping(0), _username(NO_NAME) {}
+Client::Client(Context *io) : last_ping(0), sock_(*io), _username(NO_NAME) {}
 
 void Client::start_work() {
     try {
