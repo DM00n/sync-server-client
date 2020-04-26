@@ -31,12 +31,34 @@ namespace keywords = boost::log::keywords;
 
 const unsigned PORT_NUM = 8001;
 const unsigned MAX_SYM = 1024;
-const Endpoint ep(boost::asio::ip::address::
-    from_string("127.0.0.1"), PORT_NUM);
+const unsigned TIME_OUT = 10;
+const Endpoint ep(boost::asio::ip::address::from_string("127.0.0.1"),
+        PORT_NUM);
 const unsigned LOG_SIZE = 10 * 1024 * 1024;
 const char LOG_NAME_TRACE[] = "../log/trace_%N.log";
 const char LOG_NAME_INFO[] = "../log/info_%N.log";
 const char NO_NAME[] = "NO_NAME";
+const char MSG_DISCONNECT[] = " DISCONNECTED";
+const char MSG_LOGGED[] = "LOGGED ";
+const char MSG_CONNECT[] = "NEW CLIENT CONNECTED";
+const char MSG_TIMED_OUT[] = "timed_out\n";
+const char MSG_TOO_LONG[] = "message is too long\n";
+const char REQ_LOGIN[] = "login ";
+const char REQ_PING[] = "ping";
+const char MSG_ASK_CLIENTS[] = "ask_clients";
+const char MSG_BAD_MESSAGE[] = "bad message\n";
+const char MSG_ALREADY_LOGGED[] = "you are already logged\n";
+const char MSG_SAME_CLIENT_NAME[] =
+        "client with the same name already exists\n";
+const char MSG_LOGIN_OK[] = "login ok\n";
+const char MSG_PING_CLIENTS_CHANGED[] = "ping client_list_changed\n";
+const char MSG_PING_OK[] = "ping ok\n";
+const char MSG_CLIENTS[] = "clients ";
+const char MSG_CLIENT_TERMINATED[] = "client terminated";
+const char CLI_PING[] = "ping ";
+const char MSG_CLIENTS_CHANGED[] = "client_list_changed\n";
+const char REQ_ASK_CLIENTS[] = "ask_clients\n";
+const char GOOD_ERROR[] = "read_some: Resource temporarily unavailable";
 
 class Client{
 public:
